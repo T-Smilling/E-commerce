@@ -29,9 +29,6 @@ public class AuthController {
     private UserService userService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private JWTTokenUtils jwtTokenUtils;
 
     @Autowired
@@ -39,10 +36,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registerHandler(@Valid @RequestBody UserDTO user) throws Exception {
-        String encodedPass = passwordEncoder.encode(user.getPassword());
-
-        user.setPassword(encodedPass);
-
         UserDTO userDTO = userService.registerUser(user);
 
         String token = jwtTokenUtils.generateToken(userDTO.getEmail());

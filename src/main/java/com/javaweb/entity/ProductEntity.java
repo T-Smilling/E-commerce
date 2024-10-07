@@ -21,10 +21,12 @@ import java.util.List;
 public class ProductEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "product_id")
+    private Long productId;
 
     @NotBlank
     @Size(min = 3, message = "Product name must contain atleast 3 characters")
+    @Column(name = "product_name")
     private String productName;
 
     @Column(name = "image")
@@ -42,7 +44,7 @@ public class ProductEntity extends BaseEntity {
     private double price;
     @Column(name = "discount")
     private double discount;
-    @Column(name = "specialPrice")
+    @Column(name = "special_price")
     private double specialPrice;
 
     @ManyToOne

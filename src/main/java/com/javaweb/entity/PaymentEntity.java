@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
 
 
 @Entity
-@Table(name = "payment")
+@Table(name = "payments")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -18,6 +18,7 @@ import jakarta.validation.constraints.Size;
 public class PaymentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "payment_id")
     private Long id;
 
     @OneToOne(mappedBy = "payment", cascade = { CascadeType.PERSIST, CascadeType.MERGE })

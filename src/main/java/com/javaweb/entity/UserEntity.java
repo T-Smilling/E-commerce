@@ -42,7 +42,7 @@ public class UserEntity extends BaseEntity implements UserDetails {
     @Column(name="password" , length = 200, nullable = false)
     private String password;
 
-    @Column
+    @Column(name="status")
     private String status;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST,CascadeType.MERGE})

@@ -171,7 +171,7 @@ public class UserServiceImpl implements UserService {
         Long cartId = userEntity.getCart().getId();
 
         for (CartItemEntity cartItemEntity : cartItemEntities) {
-            Long productId = cartItemEntity.getProduct().getId();
+            Long productId = cartItemEntity.getProduct().getProductId();
             cartService.deleteProductFromCart(cartId,productId);
         }
         userEntity.setStatus("0");

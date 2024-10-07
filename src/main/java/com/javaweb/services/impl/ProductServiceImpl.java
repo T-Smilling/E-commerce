@@ -110,7 +110,7 @@ public class ProductServiceImpl implements ProductService {
         double specialPrice = productDTO.getPrice() - ((productDTO.getDiscount() * 0.01) * productDTO.getPrice());
 
         saveProduct.setCategory(productEntity.getCategory());
-        saveProduct.setId(productId);
+        saveProduct.setProductId(productId);
         saveProduct.setSpecialPrice(specialPrice);
 
         productRepository.save(saveProduct);

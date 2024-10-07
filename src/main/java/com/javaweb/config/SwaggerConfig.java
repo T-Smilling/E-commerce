@@ -18,6 +18,6 @@ public class SwaggerConfig {
                 .contact(new Contact().name("Chu Ngọc Thắng").email("chuthanglsz@gmail.com"))
                 .license(new License().name("License").url("/")))
                 .externalDocs(new ExternalDocumentation().description("E-Commerce")
-                        .url("http://localhost:8080/swagger-ui/index.html"));
+                        .url("http://localhost:8085/swagger-ui.html"));
     }
 }

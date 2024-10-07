@@ -8,7 +8,7 @@ import lombok.Setter;
 
 
 @Entity
-@Table(name = "order_item")
+@Table(name = "order_items")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -16,6 +16,7 @@ import lombok.Setter;
 public class OrderItemEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_item_id")
     private Long id;
 
     @Column(name = "quantity")

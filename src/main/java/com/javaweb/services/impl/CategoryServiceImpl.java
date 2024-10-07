@@ -56,7 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         List<CategoryDTO> categoryDTOList = categoryList.stream().map(category -> {
             CategoryDTO categoryDTO = new CategoryDTO();
-            if (category.getStatus().equals("1")){
+            if (category.getStatus() != null && category.getStatus().equals("1")){
                 categoryDTO = modelMapper.map(category, CategoryDTO.class);
             }
             return categoryDTO;
@@ -74,7 +74,7 @@ public class CategoryServiceImpl implements CategoryService {
         CategoryEntity categoryEntity = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", String.valueOf(categoryId)));
 
         categoryEntity.setCategoryName(categoryDTO.getCategoryName());
-        categoryEntity.setId(categoryId);
+        categoryEntity.setCategoryId(categoryId);
 
         categoryRepository.save(categoryEntity);
 

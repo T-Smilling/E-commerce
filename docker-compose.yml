@@ -1,0 +1,30 @@
+services:
+  mysql-db:
+    container_name: my-sql
+    image: mysql:8.0
+    env_file:
+      - .env
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  api-service:
+    container_name: api-container
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    depends_on:
+      - mysql-db
+    env_file:
+      - .env
+    ports:
+      - '8085:8085'
+    networks:
+      - backend
+volumes:
+  mysql-data:
+
+networks:
+  backend:
+    driver: bridge

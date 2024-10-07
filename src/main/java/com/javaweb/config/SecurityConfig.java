@@ -27,7 +27,6 @@ public class SecurityConfig {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Email", "email", email));
     }
-
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config
@@ -36,15 +35,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

@@ -98,7 +98,7 @@ public class OrderServiceImpl implements OrderService {
 
             ProductEntity product = item.getProduct();
 
-            cartService.deleteProductFromCart(cartId, item.getProduct().getId());
+            cartService.deleteProductFromCart(cartId, item.getProduct().getProductId());
 
             product.setQuantity(product.getQuantity() - quantity);
         });

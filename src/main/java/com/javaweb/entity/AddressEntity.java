@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "address")
+@Table(name = "addresses")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -58,7 +58,7 @@ public class AddressEntity extends BaseEntity{
     @Column(name = "pin_code")
     private String pinCode;
 
-    @Column
+    @Column(name = "status")
     private String status;
 
 }
