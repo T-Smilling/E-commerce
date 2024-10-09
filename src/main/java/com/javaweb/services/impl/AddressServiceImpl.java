@@ -48,7 +48,6 @@ public class AddressServiceImpl implements AddressService {
         addressRepository.save(newAddress);
         return modelMapper.map(newAddress, AddressDTO.class);
     }
-
     @Override
     public List<AddressDTO> getAddresses() {
         List<AddressEntity> addressEntities = addressRepository.findAll();

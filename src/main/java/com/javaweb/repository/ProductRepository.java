@@ -15,6 +15,6 @@ public interface ProductRepository extends JpaRepository<ProductEntity,Long> {
     Page<ProductEntity> searchProductByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("SELECT p FROM ProductEntity p WHERE " +
-            "(:categoryId IS NULL OR :categoryId = 0 OR p.category.id = :categoryId) ")
+            "(:categoryId IS NULL OR :categoryId = 0 OR p.category.categoryId = :categoryId) ")
     Page<ProductEntity> searchProductByCategoryId(Long categoryId, Pageable pageable);
 }

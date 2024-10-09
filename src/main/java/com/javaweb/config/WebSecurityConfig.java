@@ -4,7 +4,6 @@ import com.javaweb.security.JWTFilter;
 import com.javaweb.utils.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -27,7 +26,6 @@ import java.util.Arrays;
 
 public class WebSecurityConfig {
     private final JWTFilter jwtFilter;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -49,6 +47,7 @@ public class WebSecurityConfig {
                             .requestMatchers(MessageUtils.ADMIN_URLS).hasAnyRole("ADMIN")
                             .anyRequest().authenticated();
                 });
+
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.cors(new Customizer<CorsConfigurer<HttpSecurity>>() {
