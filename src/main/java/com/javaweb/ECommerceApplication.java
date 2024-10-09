@@ -12,10 +12,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.List;
-
 @SpringBootApplication
-@SecurityScheme(name = "E-Commerce Application", scheme = "bearer", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER)
+@SecurityScheme(name = "E-Commerce", scheme = "bearer", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER)
 public class ECommerceApplication implements CommandLineRunner {
     @Autowired
     private RoleRepository roleRepository;
@@ -33,34 +31,31 @@ public class ECommerceApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         try {
-            RoleEntity adminRole = null;
-            RoleEntity userRole = null;
-            // Kiểm tra nếu role "ADMIN" đã tồn tại
+            // Kiểm tra nếu role "ADMIN" đã tồn tại, nếu chưa thì tạo mới
             if (!roleRepository.existsByRoleName("ADMIN")) {
-                adminRole = new RoleEntity();
+                RoleEntity adminRole = new RoleEntity();
                 adminRole.setId(MessageUtils.ADMIN_ID);
                 adminRole.setRoleName("ADMIN");
-                roleRepository.save(adminRole);  // Chỉ lưu nếu chưa tồn tại
+                roleRepository.save(adminRole);  // Lưu role "ADMIN"
+                System.out.println("ADMIN role đã được tạo.");
+            } else {
+                System.out.println("ADMIN role đã tồn tại.");
             }
 
-            // Kiểm tra nếu role "USER" đã tồn tại
+            // Kiểm tra nếu role "USER" đã tồn tại, nếu chưa thì tạo mới
             if (!roleRepository.existsByRoleName("USER")) {
-                userRole = new RoleEntity();
+                RoleEntity userRole = new RoleEntity();
                 userRole.setId(MessageUtils.USER_ID);
                 userRole.setRoleName("USER");
-                roleRepository.save(userRole);  // Chỉ lưu nếu chưa tồn tại
-            }
-
-            if (adminRole != null && userRole != null) {
-                List<RoleEntity> roles = List.of(adminRole, userRole);
-
-                List<RoleEntity> savedRoles = roleRepository.saveAll(roles);
-
-                savedRoles.forEach(System.out::println);
+                roleRepository.save(userRole);  // Lưu role "USER"
+                System.out.println("USER role đã được tạo.");
+            } else {
+                System.out.println("USER role đã tồn tại.");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }

@@ -17,6 +17,7 @@ import lombok.Setter;
 public class AddressEntity extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "address_id")
     private Long id;
 
     public AddressEntity(String country, String state, String city, String pinCode, String street, String buildingName) {

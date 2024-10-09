@@ -23,7 +23,7 @@ import java.util.*;
 public class UserEntity extends BaseEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long user_id;
 
     @Size(min = 10, max = 50, message = "Name must be between 5 and 30 characters long")
     @Pattern(regexp = "^[a-zA-Z]*$", message = "First Name must not contain numbers or special characters")
