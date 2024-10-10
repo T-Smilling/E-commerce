@@ -26,6 +26,8 @@ public class ECommerceApplication implements CommandLineRunner {
         System.setProperty("SPRING_DATASOURCE_URL", dotenv.get("SPRING_DATASOURCE_URL"));
         System.setProperty("MYSQL_USERNAME", dotenv.get("MYSQL_USERNAME"));
         System.setProperty("MYSQL_ROOT_PASSWORD", dotenv.get("MYSQL_ROOT_PASSWORD"));
+        System.setProperty("EMAIL_USER", dotenv.get("EMAIL_USER"));
+        System.setProperty("EMAIL_PASSWORD", dotenv.get("EMAIL_PASSWORD"));
 
         SpringApplication.run(ECommerceApplication.class, args);
     }

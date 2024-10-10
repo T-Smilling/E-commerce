@@ -26,7 +26,7 @@ public class JWTFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService userDetailService;
 
-    @Value("api/v1")
+    @Value("/api/v1")
     private String apiPrefix;
 
     @Autowired
@@ -39,8 +39,12 @@ public class JWTFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/users/register", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
                 Pair.of("/v3/api-docs", "GET"),
-                Pair.of("/swagger-ui/index.html", "GET"),
-                Pair.of("/swagger-ui.html", "GET")
+                Pair.of("/v3/api-docs/**", "GET"), // Đường dẫn cho tất cả tài nguyên API docs
+                Pair.of("/swagger-ui/", "GET"), // Đường dẫn gốc cho Swagger UI
+                Pair.of("/swagger-ui/**", "GET"), // Đường dẫn cho tất cả tài nguyên trong Swagger UI
+                Pair.of("/swagger-ui.html", "GET"), // Đường dẫn tới trang HTML của Swagger UI
+                Pair.of("/webjars/**", "GET"), // Đường dẫn cho các tài nguyên webjar (CSS, JS)
+                Pair.of("/mail/**","POST")
         );
         for(Pair<String, String> byPassToken : byPassTokens) {
             if (request.getServletPath().contains(byPassToken.getFirst()) &&
