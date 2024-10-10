@@ -25,7 +25,7 @@ import java.util.Arrays;
 public class WebSecurityConfig {
     private final JWTFilter jwtFilter;
 
-    @Value("${api.prefix}")
+    @Value("/${api.prefix}")
     private String apiPrefix;
 
     @Bean
@@ -34,10 +34,10 @@ public class WebSecurityConfig {
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> {
                     request
-                            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html","/mail/**").permitAll()
+                            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html","/send-email").permitAll()
                             .requestMatchers(
-                                    String.format("/%s/users/register",apiPrefix),
-                                    String.format("/%s/users/login",apiPrefix)
+                                    String.format("%s/users/register",apiPrefix),
+                                    String.format("%s/users/login",apiPrefix)
                             ).permitAll()
                             .requestMatchers(MessageUtils.USER_URLS).hasAnyRole("USER", "ADMIN")
                             .requestMatchers(MessageUtils.ADMIN_URLS).hasAnyRole("ADMIN")

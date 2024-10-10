@@ -16,9 +16,8 @@ import java.util.Objects;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class MailService {
-
+    @Autowired
     private JavaMailSender mailSender;
 
     @Value("${spring.mail.from}")

@@ -16,11 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
-@RequestMapping("/mail")
-@SecurityRequirement(name = "E-Commerce")
-@RequiredArgsConstructor
 public class MailController {
-    private final MailService mailService;
+    @Autowired
+    private MailService mailService;
 
     @PostMapping("/send-email")
     public ResponseEntity<String> sendMail(@RequestParam String recipients,@RequestParam String subject,@RequestParam String content,@RequestParam(required = false) MultipartFile[] files) throws MessagingException {

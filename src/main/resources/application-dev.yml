@@ -13,6 +13,7 @@ spring:
           auth: true
         starttls:
           enable: true
+
   mail:
     from: nkswin@gmail.com
     host: smtp.gmail.com
@@ -29,8 +30,8 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     enabled: true
+
 logging:
   level:
-    org:
-      springframework:
-        security: DEBUG
+    root: INFO
+    com.javaweb.security: DEBUG

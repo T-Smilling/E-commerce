@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
@@ -22,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
+@Slf4j
 public class JWTFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService userDetailService;
@@ -44,7 +46,8 @@ public class JWTFilter extends OncePerRequestFilter {
                 Pair.of("/swagger-ui/**", "GET"), // Đường dẫn cho tất cả tài nguyên trong Swagger UI
                 Pair.of("/swagger-ui.html", "GET"), // Đường dẫn tới trang HTML của Swagger UI
                 Pair.of("/webjars/**", "GET"), // Đường dẫn cho các tài nguyên webjar (CSS, JS)
-                Pair.of("/mail/**","POST")
+                Pair.of("/send-email","POST"),
+                Pair.of("/send-email**","POST")
         );
         for(Pair<String, String> byPassToken : byPassTokens) {
             if (request.getServletPath().contains(byPassToken.getFirst()) &&
@@ -58,6 +61,8 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
+            boolean bypassResult = isByPassToken(request); // Kiểm tra bypass token
+            log.debug("Bypass token result for {}: {}", request.getServletPath(), bypassResult); // Ghi lại kết quả
             if(isByPassToken(request)) {
                 filterChain.doFilter(request, response); //enable bypass
                 return;
