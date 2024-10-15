@@ -16,6 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -35,6 +37,7 @@ public class JWTFilter extends OncePerRequestFilter {
     private JWTTokenUtils jwtTokenUtils;
 
     private boolean isByPassToken(@NonNull  HttpServletRequest request) {
+        PathMatcher pathMatcher = new AntPathMatcher();
         final List<Pair<String, String>> byPassTokens = Arrays.asList(
                 Pair.of(String.format("%s/products", apiPrefix), "GET"),
                 Pair.of(String.format("%s/categories", apiPrefix), "GET"),
@@ -47,11 +50,12 @@ public class JWTFilter extends OncePerRequestFilter {
                 Pair.of("/swagger-ui.html", "GET"), // Đường dẫn tới trang HTML của Swagger UI
                 Pair.of("/webjars/**", "GET"), // Đường dẫn cho các tài nguyên webjar (CSS, JS)
                 Pair.of("/send-email","POST"),
-                Pair.of("/send-email**","POST")
+                Pair.of("/send-email**","POST"),
+                Pair.of("/api/v1/confirm/**", "GET")
         );
         for(Pair<String, String> byPassToken : byPassTokens) {
-            if (request.getServletPath().contains(byPassToken.getFirst()) &&
-                    request.getMethod().equals(byPassToken.getSecond())) {
+            if (pathMatcher.match(byPassToken.getFirst(), request.getServletPath()) &&
+                    request.getMethod().equalsIgnoreCase(byPassToken.getSecond())) {
                 return true;
             }
         }

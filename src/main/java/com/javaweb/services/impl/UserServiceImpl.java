@@ -12,7 +12,9 @@ import com.javaweb.repository.UserRepository;
 import com.javaweb.services.CartService;
 import com.javaweb.services.UserService;
 import com.javaweb.utils.MessageUtils;
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,9 +22,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +35,7 @@ import java.util.stream.Collectors;
 
 @Transactional
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
@@ -51,6 +57,13 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+
 
     @Override
     public UserResponse getAllUsers(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
@@ -80,7 +93,7 @@ public class UserServiceImpl implements UserService {
                 userDTO.setCart(cartDTO);
                 userDTO.getCart().setProducts(products);
             }
-            return userDTO;
+            return modelMapper.map(user,UserDTO.class);
         }).collect(Collectors.toList());
 
         UserResponse userResponse = modelMapper.map(pageUser, UserResponse.class);
@@ -121,7 +134,7 @@ public class UserServiceImpl implements UserService {
 
         String encodedPass = passwordEncoder.encode(userDTO.getPassword());
         userEntity.setName(userDTO.getName());
-        userEntity.setPhoneNumber(userDTO.getMobileNumber());
+        userEntity.setPhoneNumber(userDTO.getPhoneNumber());
         userEntity.setEmail(userDTO.getEmail());
         userEntity.setPassword(encodedPass);
 
@@ -148,16 +161,16 @@ public class UserServiceImpl implements UserService {
 
         userDTO = modelMapper.map(userEntity, UserDTO.class);
 
-        userDTO.setAddress(modelMapper.map(userEntity.getAddresses().stream().findFirst().get(), AddressDTO.class));
+        //userDTO.setAddress(modelMapper.map(userEntity.getAddresses().stream().findFirst().get(), AddressDTO.class));
 
         CartDTO cart = modelMapper.map(userEntity.getCart(), CartDTO.class);
 
         List<ProductDTO> products = userEntity.getCart().getCartItems().stream()
                 .map(item -> modelMapper.map(item.getProduct(), ProductDTO.class)).collect(Collectors.toList());
 
-        userDTO.setCart(cart);
-
-        userDTO.getCart().setProducts(products);
+//        userDTO.setCart(cart);
+//
+//        userDTO.getCart().setProducts(products);
 
         return userDTO;
     }
@@ -180,7 +193,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO registerUser(UserDTO userDTO) {
+    public UserDTO registerUser(UserDTO userDTO) throws MessagingException, UnsupportedEncodingException {
         try {
             UserEntity userEntity = modelMapper.map(userDTO, UserEntity.class);
 
@@ -188,9 +201,6 @@ public class UserServiceImpl implements UserService {
             userEntity.setCart(cartEntity);
             String encodedPass = passwordEncoder.encode(userDTO.getPassword());
             userEntity.setPassword(encodedPass);
-
-            RoleEntity role = roleRepository.findById(Math.toIntExact(MessageUtils.USER_ID)).get();
-            userEntity.getRoles().add(role);
 
             String country = userDTO.getAddress().getCountry();
             String state = userDTO.getAddress().getState();
@@ -207,14 +217,26 @@ public class UserServiceImpl implements UserService {
 
                 addressRepository.save(address);
             }
+            userEntity.setAddresses(List.of(address));
 
-            userEntity.setAddresses(Arrays.asList(address));
-            UserEntity registeredUser = userRepository.save(userEntity);
+            RoleEntity role = roleRepository.findById(Math.toIntExact(MessageUtils.USER_ID)).get();
+            userEntity.getRoles().add(role);
+            userEntity.setStatus("1");
+            UserEntity registeredUser = new UserEntity();
+            try{
+                registeredUser = userRepository.save(userEntity);
+            } catch (Exception e){
+                log.info(e.getMessage());
+            }
 
-            cartEntity.setUser(registeredUser);
+            if (registeredUser.getId() != null) {
+                //mailService.sendConfirmLink(registeredUser.getEmail(),registeredUser.getId(),"secretCode");
+                kafkaTemplate.send("confirm-account-topic", String.format("email=%s,id=%s,code=%s", registeredUser.getEmail(), registeredUser.getId(), "code@123"));
+            }
 
-            userDTO = modelMapper.map(registeredUser, UserDTO.class);
+            cartEntity.setUser(userEntity);
 
+            userDTO = modelMapper.map(userEntity, UserDTO.class);
             userDTO.setAddress(modelMapper.map(userEntity.getAddresses().stream().findFirst().get(), AddressDTO.class));
 
             return userDTO;
@@ -223,6 +245,11 @@ public class UserServiceImpl implements UserService {
             throw new APIException("User already exists with emailId: " + userDTO.getEmail());
         }
 
+    }
+
+    @Override
+    public void confirmUser(Long userId, String secretCode) {
+        log.info("Confirm");
     }
 }
 

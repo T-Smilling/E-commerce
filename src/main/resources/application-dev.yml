@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://192.168.1.4:3306/ecommerce?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://192.168.1.6:3306/ecommerce?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
     username: ${MYSQL_USERNAME:root}
     password: ${MYSQL_ROOT_PASSWORD:pbhyclls}
     hikari:
@@ -13,6 +13,8 @@ spring:
           auth: true
         starttls:
           enable: true
+  kafka:
+    bootstrap-servers: localhost:29092
 
   mail:
     from: nkswin@gmail.com
@@ -34,4 +36,4 @@ springdoc:
 logging:
   level:
     root: INFO
-    com.javaweb.security: DEBUG
+    org.springframework.security: DEBUG

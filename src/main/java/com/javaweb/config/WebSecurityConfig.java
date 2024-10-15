@@ -3,6 +3,7 @@ package com.javaweb.config;
 import com.javaweb.security.JWTFilter;
 import com.javaweb.utils.MessageUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,29 +23,34 @@ import java.util.Arrays;
 @EnableWebSecurity
 @EnableWebMvc
 @RequiredArgsConstructor
+@Slf4j
+
 public class WebSecurityConfig {
     private final JWTFilter jwtFilter;
-
-    @Value("/${api.prefix}")
-    private String apiPrefix;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .csrf().disable()
                 .authorizeHttpRequests(request -> {
                     request
-                            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html","/send-email").permitAll()
                             .requestMatchers(
-                                    String.format("%s/users/register",apiPrefix),
-                                    String.format("%s/users/login",apiPrefix)
+                                    "/swagger-ui/**",
+                                    "/v3/api-docs/**",
+                                    "/swagger-ui.html",
+                                    "/send-email",
+                                    "/api/v1/confirm/**"
+                            ).permitAll()
+                            .requestMatchers(
+                                    "/api/v1/users/register",
+                                    "/api/v1/users/login"
                             ).permitAll()
                             .requestMatchers(MessageUtils.USER_URLS).hasAnyRole("USER", "ADMIN")
                             .requestMatchers(MessageUtils.ADMIN_URLS).hasAnyRole("ADMIN")
                             .anyRequest().authenticated();
-                })
-                .csrf().disable();
+                });
 
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.cors(new Customizer<CorsConfigurer<HttpSecurity>>() {
             @Override
             public void customize(CorsConfigurer<HttpSecurity> httpSecurityCorsConfigurer) {

@@ -27,7 +27,7 @@ public class UserEntity extends BaseEntity implements UserDetails {
     private Long id;
 
     @Size(min = 10, max = 50, message = "Name must be between 5 and 30 characters long")
-    @Pattern(regexp = "^[a-zA-Z]*$", message = "First Name must not contain numbers or special characters")
+    @Pattern(regexp = "^[a-zA-Z\\s]*$", message = "Name must not contain numbers or special characters")
     @Column(name="name")
     private String name;
 

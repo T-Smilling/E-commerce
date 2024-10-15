@@ -14,7 +14,7 @@ import java.util.Set;
 public class UserDTO {
     private Long userId;
     private String name;
-    private String mobileNumber;
+    private String phoneNumber;
     private String email;
     private String password;
     private Set<RoleEntity> roles = new HashSet<>();

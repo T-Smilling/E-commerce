@@ -5,14 +5,19 @@ import com.javaweb.model.response.UserResponse;
 import com.javaweb.services.UserService;
 import com.javaweb.utils.MessageUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/${api.prefix}")
 @SecurityRequirement(name = "E-Commerce")
+@Slf4j
 public class UserController {
     @Autowired
     private UserService userService;
@@ -32,21 +37,33 @@ public class UserController {
     @GetMapping("/users/{userId}")
     public ResponseEntity<UserDTO> getUser(@PathVariable Long userId) {
         UserDTO user = userService.getUserById(userId);
-
         return new ResponseEntity<>(user, HttpStatus.FOUND);
     }
 
     @PutMapping("/users/{userId}")
     public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO, @PathVariable Long userId) {
         UserDTO updatedUser = userService.updateUser(userId, userDTO);
-
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+    }
+
+    @GetMapping("/confirm/{userId}")
+    public ResponseEntity<String> confirmUser(@PathVariable Long userId, @RequestParam String secretCode, HttpServletResponse response) throws IOException {
+        log.info("Confirm user userId={}, secretCode={}", userId, secretCode);
+        try {
+            userService.confirmUser(userId,secretCode);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body("User confirmed!");
+        } catch (Exception e){
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Confirm failure");
+        } finally {
+//            response.sendRedirect("http://localhost:8085/api/v1/users/login");
+            response.sendRedirect("https://github.com/T-Smilling");
+        }
     }
 
     @DeleteMapping("/admin/users/{userId}")
     public ResponseEntity<String> deleteUser(@PathVariable Long userId) {
         String status = userService.deleteUser(userId);
-
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 }
