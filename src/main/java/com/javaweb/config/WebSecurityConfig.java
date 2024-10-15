@@ -26,6 +26,7 @@ import java.util.Arrays;
 
 public class WebSecurityConfig {
     private final JWTFilter jwtFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
