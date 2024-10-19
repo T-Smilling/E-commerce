@@ -17,6 +17,8 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - '22181:2181'
+    networks:
+      - backend
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -32,6 +34,8 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - backend
 
 
   api-service:
@@ -41,6 +45,9 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - mysql-db
+      - kafka
+    environment:
+      KAFKA_URL: kafka:9092
     env_file:
       - .env
     ports:
