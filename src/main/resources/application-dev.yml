@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://192.168.1.3:3306/ecommerce?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://192.168.1.6:3306/ecommerce?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
     username: ${MYSQL_USERNAME:root}
     password: ${MYSQL_ROOT_PASSWORD:pbhyclls}
     hikari:
@@ -14,14 +14,14 @@ spring:
         starttls:
           enable: true
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: ${KAFKA_URL:localhost:29092}
 
   mail:
     from: nkswin@gmail.com
     host: smtp.gmail.com
     port: 587
-    username: ${EMAIL_USER}
-    password: ${EMAIL_PASSWORD}
+    username: ${EMAIL_USER:kwinn0332@gmail.com}
+    password: ${EMAIL_PASSWORD:erjfxxbvzlcfpvqj}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
