@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -46,7 +47,8 @@ public class OrderServiceImpl implements OrderService {
     private CartService cartService;
 
     @Override
-    public OrderDTO placeOrder(String email, Long cartId, String paymentMethod) {
+    @Transactional
+    public OrderDTO placeOrder(String email, Long cartId, Long paymentId) {
         CartEntity cartEntity = cartRepository.findByEmailAndId(email,cartId);
 
         if (cartEntity == null) {
@@ -61,9 +63,8 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalAmount(cartEntity.getTotalPrice());
         order.setOrderStatus("Order Accepted !");
 
-        PaymentEntity payment = new PaymentEntity();
+        PaymentEntity payment = paymentRepository.findById(paymentId).get();
         payment.setOrder(order);
-        payment.setPaymentMethod(paymentMethod);
 
         paymentRepository.save(payment);
 

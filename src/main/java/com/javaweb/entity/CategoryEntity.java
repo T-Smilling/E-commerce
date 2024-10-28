@@ -28,8 +28,8 @@ public class CategoryEntity extends BaseEntity {
     @Size(min = 5, message = "Category name must contain atleast 5 characters")
     private String categoryName;
 
-    @Column
-    private String status;
+    @Column(columnDefinition = "varchar(5) default '1'")
+    private String status = "1";
 
     @OneToMany(mappedBy = "category",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<ProductEntity> products;

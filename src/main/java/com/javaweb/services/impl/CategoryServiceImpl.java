@@ -6,6 +6,7 @@ import com.javaweb.exception.APIException;
 import com.javaweb.exception.ResourceNotFoundException;
 import com.javaweb.model.dto.CategoryDTO;
 import com.javaweb.model.response.CategoryResponse;
+import com.javaweb.model.response.StatusResponse;
 import com.javaweb.repository.CategoryRepository;
 import com.javaweb.repository.ProductRepository;
 import com.javaweb.services.CategoryService;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,9 +40,9 @@ public class CategoryServiceImpl implements CategoryService {
         if (categoryEntity != null) {
             throw new APIException("Category with the name '" + category.getCategoryName() + "' already exists !!!");
         }
-        categoryEntity.setStatus("1");
-        categoryRepository.save(categoryEntity);
-        return modelMapper.map(categoryEntity, CategoryDTO.class);
+        CategoryEntity savedCategoryEntity = modelMapper.map(category, CategoryEntity.class);
+        categoryRepository.save(savedCategoryEntity);
+        return modelMapper.map(savedCategoryEntity, CategoryDTO.class);
     }
 
     @Override
@@ -82,13 +84,18 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public String deleteCategory(Long categoryId) {
+    public StatusResponse deleteCategory(Long categoryId) {
         CategoryEntity categoryEntity = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", String.valueOf(categoryId)));
 
         List<ProductEntity> productEntities = categoryEntity.getProducts();
         productRepository.deleteAll(productEntities);
 
         categoryEntity.setStatus("0");
-        return "Category with categoryId: " + categoryId + " deleted successfully !!!";
+        categoryRepository.save(categoryEntity);
+
+        return StatusResponse.builder()
+                .message("Category with categoryId: " + categoryId + " deleted successfully !!!")
+                .status(HttpStatus.OK.value())
+                .build();
     }
 }

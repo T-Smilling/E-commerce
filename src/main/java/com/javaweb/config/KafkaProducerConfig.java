@@ -38,4 +38,9 @@ public class KafkaProducerConfig {
     public NewTopic confirmAccount() {
         return new NewTopic("confirm-account-topic", 3, (short) 1);
     }
+
+    @Bean
+    public NewTopic confirmForgotPassword() {
+        return new NewTopic("confirm-forgot-password-topic", 3, (short) 1);
+    }
 }

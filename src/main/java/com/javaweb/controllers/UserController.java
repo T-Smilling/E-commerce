@@ -1,7 +1,9 @@
 package com.javaweb.controllers;
 
 import com.javaweb.model.dto.UserDTO;
+import com.javaweb.model.response.InfoUserResponse;
 import com.javaweb.model.response.UserResponse;
+import com.javaweb.services.AuthenticationService;
 import com.javaweb.services.UserService;
 import com.javaweb.utils.MessageUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -22,6 +24,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private AuthenticationService authenticationService;
+
     @GetMapping("/admin/users")
     public ResponseEntity<UserResponse> getUsers(
             @RequestParam(name = "pageNumber", defaultValue = MessageUtils.PAGE_NUMBER, required = false) Integer pageNumber,
@@ -35,14 +40,14 @@ public class UserController {
     }
 
     @GetMapping("/users/{userId}")
-    public ResponseEntity<UserDTO> getUser(@PathVariable Long userId) {
-        UserDTO user = userService.getUserById(userId);
+    public ResponseEntity<InfoUserResponse> getUser(@PathVariable Long userId) {
+        InfoUserResponse user = authenticationService.getUserById(userId);
         return new ResponseEntity<>(user, HttpStatus.FOUND);
     }
 
     @PutMapping("/users/{userId}")
     public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO, @PathVariable Long userId) {
-        UserDTO updatedUser = userService.updateUser(userId, userDTO);
+        UserDTO updatedUser = authenticationService.updateUser(userId, userDTO);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 

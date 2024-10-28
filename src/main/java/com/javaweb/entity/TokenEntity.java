@@ -12,25 +12,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TokenEntity {
+public class TokenEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "token", length = 255)
-    private String token;
+    @Column(name = "name",unique = true)
+    private String name;
 
-    @Column(name = "token_type", length = 50)
-    private String tokenType;
+    @Column(name = "access_token")
+    private String accessToken;
 
-    @Column(name = "expiration_date")
-    private LocalDateTime expirationDate;
-
-    private boolean revoked;
-    private boolean expired;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
-
+    @Column(name = "refresh_token")
+    private String refreshToken;
 }

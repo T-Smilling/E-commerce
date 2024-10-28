@@ -2,6 +2,7 @@ package com.javaweb.controllers;
 
 import com.javaweb.model.dto.CategoryDTO;
 import com.javaweb.model.response.CategoryResponse;
+import com.javaweb.model.response.StatusResponse;
 import com.javaweb.services.CategoryService;
 import com.javaweb.utils.MessageUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -42,9 +43,8 @@ public class CategoryController {
     }
 
     @DeleteMapping("/admin/categories/{categoryId}")
-    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId){
-        String status = categoryService.deleteCategory(categoryId);
-
-        return new ResponseEntity<>(status, HttpStatus.OK);
+    public ResponseEntity<StatusResponse> deleteCategory(@PathVariable Long categoryId){
+        StatusResponse status = categoryService.deleteCategory(categoryId);
+        return new ResponseEntity<StatusResponse>(status,HttpStatus.OK);
     }
 }

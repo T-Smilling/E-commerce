@@ -113,4 +113,37 @@ public class MailService {
         mailSender.send(mimeMessage);
         log.info("Link has sent to user, email={}, linkConfirm={}", emailTo, linkConfirm);
     }
+
+    @KafkaListener(topics = "confirm-forgot-password-topic", groupId = "confirm-account-group")
+    public void sendConfirmLinkPasswordByKafka(String message) throws MessagingException, UnsupportedEncodingException {
+        log.info("Sending link to user, email={}", message);
+
+        String[] arr = message.split(",");
+        String emailTo = arr[0].substring(arr[0].indexOf('=') + 1);
+        String userId = arr[1].substring(arr[1].indexOf('=') + 1);
+        String secretCode = arr[2].substring(arr[2].indexOf('=') + 1);
+
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+        Context context = new Context();
+
+        String confirmLink = String.format("curl --location 'http://localhost:8085/auth/reset-password' \\\n" +
+                "--header 'accept: */*' \\\n" +
+                "--header 'Content-Type: application/json' \\\n" +
+                "--data '%s'", secretCode);
+
+        log.info("confirmLink={}", confirmLink);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("confirmLink", confirmLink);
+        context.setVariables(properties);
+
+        helper.setFrom(emailFrom,"Chu Thắng");
+        helper.setTo(emailTo);
+        helper.setSubject("Please confirm your account");
+        String html = templateEngine.process("confirm-reset-password.html", context);
+        helper.setText(html, true);
+
+        mailSender.send(mimeMessage);
+        log.info("Link has sent to user, email={}, confirmLink={}", emailTo, confirmLink);
+    }
 }

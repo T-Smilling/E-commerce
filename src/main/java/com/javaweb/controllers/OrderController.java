@@ -19,11 +19,11 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @PostMapping("/users/{email}/carts/{cartId}/payments/{paymentMethod}/order")
+    @PostMapping("/users/{email}/carts/{cartId}/payments/{paymentId}/order")
     public ResponseEntity<OrderDTO> orderProducts(@PathVariable String email,
                                                   @PathVariable Long cartId,
-                                                  @PathVariable String paymentMethod) {
-        OrderDTO order = orderService.placeOrder(email, cartId, paymentMethod);
+                                                  @PathVariable Long paymentId) {
+        OrderDTO order = orderService.placeOrder(email, cartId, paymentId);
 
         return new ResponseEntity<>(order, HttpStatus.CREATED);
     }

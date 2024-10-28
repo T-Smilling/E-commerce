@@ -107,7 +107,7 @@ public class CartServiceImpl implements CartService {
                 .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class)).collect(Collectors.toList());
 
         cartDTO.setProducts(productDTOs);
-
+        cartRepository.save(cartEntity);
         return cartDTO;
     }
 
@@ -184,7 +184,7 @@ public class CartServiceImpl implements CartService {
         cartEntity.setTotalPrice(cartPrice + (cartItem.getProductPrice() * quantity));
 
         CartDTO cartDTO = modelMapper.map(cartEntity,CartDTO.class);
-
+        cartRepository.save(cartEntity);
         List<ProductDTO> productDTOs = cartEntity.getCartItems().stream()
                 .map(product -> modelMapper.map(product.getProduct(), ProductDTO.class)).collect(Collectors.toList());
 

@@ -1,6 +1,7 @@
 package com.javaweb.entity;
 
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -8,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +21,7 @@ import java.util.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 @Entity
 @Table(name="users")
 public class UserEntity extends BaseEntity implements UserDetails {
@@ -26,7 +30,7 @@ public class UserEntity extends BaseEntity implements UserDetails {
     @Column(name="user_id")
     private Long id;
 
-    @Size(min = 10, max = 50, message = "Name must be between 5 and 30 characters long")
+    @Size(min = 5, max = 30, message = "Name must be between 5 and 30 characters long")
     @Pattern(regexp = "^[a-zA-Z\\s]*$", message = "Name must not contain numbers or special characters")
     @Column(name="name")
     private String name;
@@ -62,9 +66,10 @@ public class UserEntity extends BaseEntity implements UserDetails {
     private CartEntity cart;
 
     @Override
+    @Transactional
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-        for (RoleEntity role : getRoles()) {
+        for (RoleEntity role : roles) {
             authorityList.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleName().toUpperCase()));
         }
         return authorityList;
@@ -72,7 +77,7 @@ public class UserEntity extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return name;
     }
 
     @Override

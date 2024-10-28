@@ -4,6 +4,7 @@ import com.javaweb.entity.*;
 import com.javaweb.exception.APIException;
 import com.javaweb.exception.ResourceNotFoundException;
 import com.javaweb.model.dto.*;
+import com.javaweb.model.response.InfoUserResponse;
 import com.javaweb.model.response.UserResponse;
 import com.javaweb.repository.AddressRepository;
 import com.javaweb.repository.CartRepository;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -54,9 +56,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private CartService cartService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private MailService mailService;
@@ -104,78 +103,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO getUserById(Long userId) {
-        UserEntity userEntity = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "userId", String.valueOf(userId)));
-
-        if (userEntity.getStatus().equals("0")){
-            throw new APIException("User is not active!");
-        }
-        UserDTO userDTO = modelMapper.map(userEntity, UserDTO.class);
-
-        userDTO.setAddress(modelMapper.map(userEntity.getAddresses().stream().findFirst().get(), AddressDTO.class));
-
-        CartDTO cartDTO = modelMapper.map(userEntity.getCart(), CartDTO.class);
-
-        List<ProductDTO> products = userEntity.getCart().getCartItems().stream()
-                .map(user -> modelMapper.map(user.getProduct(), ProductDTO.class)).collect(Collectors.toList());
-
-        userDTO.setCart(cartDTO);
-
-        userDTO.getCart().setProducts(products);
-
-        return userDTO;
-    }
-
-    @Override
-    public UserDTO updateUser(Long userId, UserDTO userDTO) {
-        UserEntity userEntity = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "userId", String.valueOf(userId)));
-
-        String encodedPass = passwordEncoder.encode(userDTO.getPassword());
-        userEntity.setName(userDTO.getName());
-        userEntity.setPhoneNumber(userDTO.getPhoneNumber());
-        userEntity.setEmail(userDTO.getEmail());
-        userEntity.setPassword(encodedPass);
-
-        if (userDTO.getAddress() != null) {
-            String country = userDTO.getAddress().getCountry();
-            String state = userDTO.getAddress().getState();
-            String city = userDTO.getAddress().getCity();
-            String pinCode = userDTO.getAddress().getPinCode();
-            String street = userDTO.getAddress().getStreet();
-            String buildingName = userDTO.getAddress().getBuildingName();
-
-            AddressEntity addressEntity = addressRepository.findByCountryAndStateAndCityAndPinCodeAndStreetAndBuildingName(country, state,
-                    city, pinCode, street, buildingName);
-
-            if (addressEntity == null) {
-                addressEntity = new AddressEntity(country, state, city, pinCode, street, buildingName);
-
-                addressRepository.save(addressEntity);
-
-                userEntity.setAddresses(Arrays.asList(addressEntity));
-            }
-        }
-        userRepository.save(userEntity);
-
-        userDTO = modelMapper.map(userEntity, UserDTO.class);
-
-        //userDTO.setAddress(modelMapper.map(userEntity.getAddresses().stream().findFirst().get(), AddressDTO.class));
-
-        CartDTO cart = modelMapper.map(userEntity.getCart(), CartDTO.class);
-
-        List<ProductDTO> products = userEntity.getCart().getCartItems().stream()
-                .map(item -> modelMapper.map(item.getProduct(), ProductDTO.class)).collect(Collectors.toList());
-
-//        userDTO.setCart(cart);
-//
-//        userDTO.getCart().setProducts(products);
-
-        return userDTO;
-    }
-
-    @Override
     public String deleteUser(Long userId) {
         UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "userId", String.valueOf(userId)));
@@ -188,68 +115,18 @@ public class UserServiceImpl implements UserService {
             cartService.deleteProductFromCart(cartId,productId);
         }
         userEntity.setStatus("0");
-
+        userRepository.save(userEntity);
         return "User with userId " + userId + " deleted successfully!!!";
-    }
-
-    @Override
-    public UserDTO registerUser(UserDTO userDTO) throws MessagingException, UnsupportedEncodingException {
-        try {
-            UserEntity userEntity = modelMapper.map(userDTO, UserEntity.class);
-
-            CartEntity cartEntity = new CartEntity();
-            userEntity.setCart(cartEntity);
-            String encodedPass = passwordEncoder.encode(userDTO.getPassword());
-            userEntity.setPassword(encodedPass);
-
-            String country = userDTO.getAddress().getCountry();
-            String state = userDTO.getAddress().getState();
-            String city = userDTO.getAddress().getCity();
-            String pinCode = userDTO.getAddress().getPinCode();
-            String street = userDTO.getAddress().getStreet();
-            String buildingName = userDTO.getAddress().getBuildingName();
-
-            AddressEntity address = addressRepository.findByCountryAndStateAndCityAndPinCodeAndStreetAndBuildingName(country, state,
-                    city, pinCode, street, buildingName);
-
-            if (address == null) {
-                address = new AddressEntity(country, state, city, pinCode, street, buildingName);
-
-                addressRepository.save(address);
-            }
-            userEntity.setAddresses(List.of(address));
-
-            RoleEntity role = roleRepository.findById(Math.toIntExact(MessageUtils.USER_ID)).get();
-            userEntity.getRoles().add(role);
-            userEntity.setStatus("1");
-            UserEntity registeredUser = new UserEntity();
-            try{
-                registeredUser = userRepository.save(userEntity);
-            } catch (Exception e){
-                log.info(e.getMessage());
-            }
-
-            if (registeredUser.getId() != null) {
-                //mailService.sendConfirmLink(registeredUser.getEmail(),registeredUser.getId(),"secretCode");
-                kafkaTemplate.send("confirm-account-topic", String.format("email=%s,id=%s,code=%s", registeredUser.getEmail(), registeredUser.getId(), "code@123"));
-            }
-
-            cartEntity.setUser(userEntity);
-
-            userDTO = modelMapper.map(userEntity, UserDTO.class);
-            userDTO.setAddress(modelMapper.map(userEntity.getAddresses().stream().findFirst().get(), AddressDTO.class));
-
-            return userDTO;
-
-        } catch (DataIntegrityViolationException e) {
-            throw new APIException("User already exists with emailId: " + userDTO.getEmail());
-        }
-
     }
 
     @Override
     public void confirmUser(Long userId, String secretCode) {
         log.info("Confirm");
+    }
+
+    @Override
+    public UserDetailsService userDetailsService() {
+        return username -> userRepository.findByName(username).orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
     }
 }
 

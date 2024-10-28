@@ -9,7 +9,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
       dialect: org.hibernate.dialect.MySQL8Dialect
@@ -25,5 +25,8 @@ spring:
 api:
   prefix: api/v1
 jwt:
-  expiration: 2592000 #30 days = 30 * 24 * 60 * 60
-  secretKey: TaqlmGv1iEDMRiFp/pHuID1+T84IABfuA0xXh4GhiUI=
+  expirationHour: 3600 #1 hour = 60 * 60
+  expirationDay: 1296000 #15 days = 24 * 60 * 60 * 15
+  secretKey: 2c5dfe83271d0b206b1d4e226a3f351601b454dfb83da5465672e507ed0fabbc
+  refreshKey: 9k1jJAWAKQCnCEz1pwcPNegbHoLugf9hgEnn6sz5pFc=
+  resetKey: yetUkaPD5k7HBkGO3eHiwI6///TbwbL4KJpk0VL4SIY=

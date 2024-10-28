@@ -2,17 +2,17 @@ package com.javaweb.model.dto;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
-@Data
+@Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginCredentials {
-    @Email
-    @Column(unique = true, nullable = false)
-    private String email;
+    @NotBlank(message = "username must be not blank")
+    private String name;
 
+    @NotBlank(message = "username must be not blank")
     private String password;
 }

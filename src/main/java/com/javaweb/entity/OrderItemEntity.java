@@ -25,7 +25,7 @@ public class OrderItemEntity extends BaseEntity {
     @Column(name = "discount")
     private double discount;
 
-    @Column(name = "prder_product_price")
+    @Column(name = "order_product_price")
     private double orderedProductPrice;
 
     @ManyToOne

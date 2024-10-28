@@ -2,9 +2,9 @@ package com.javaweb.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 
@@ -18,19 +18,12 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 public class BaseEntity {
     @Column(name="create_at")
+    @CreationTimestamp
     private LocalDateTime createAt;
 
     @Column(name="update_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
-    @PrePersist
-    protected void onCreate() {
-        this.createAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 
     @Column(name = "createdby")
     @CreatedBy

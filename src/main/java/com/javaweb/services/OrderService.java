@@ -6,7 +6,7 @@ import com.javaweb.model.response.OrderResponse;
 import java.util.List;
 
 public interface OrderService {
-    OrderDTO placeOrder(String email, Long cartId, String paymentMethod);
+    OrderDTO placeOrder(String email, Long cartId, Long paymentId);
 
     OrderResponse getAllOrders(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 

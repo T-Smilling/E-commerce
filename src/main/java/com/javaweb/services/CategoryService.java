@@ -2,6 +2,7 @@ package com.javaweb.services;
 
 import com.javaweb.model.dto.CategoryDTO;
 import com.javaweb.model.response.CategoryResponse;
+import com.javaweb.model.response.StatusResponse;
 import jakarta.validation.Valid;
 
 public interface CategoryService {
@@ -11,5 +12,5 @@ public interface CategoryService {
 
     CategoryDTO updateCategory(Long categoryId, CategoryDTO categoryDTO);
 
-    String deleteCategory(Long categoryId);
+    StatusResponse deleteCategory(Long categoryId);
 }
