@@ -13,6 +13,7 @@ import com.javaweb.repository.AddressRepository;
 import com.javaweb.repository.RoleRepository;
 import com.javaweb.repository.UserRepository;
 import com.javaweb.services.AuthenticationService;
+import com.javaweb.services.RedisTokenService;
 import com.javaweb.services.TokenService;
 import com.javaweb.utils.JWTTokenUtils;
 import com.javaweb.utils.MessageUtils;
@@ -51,8 +52,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private AddressRepository addressRepository;
     @Autowired
     private JWTTokenUtils jwtTokenUtils;
+//    @Autowired
+//    private TokenService tokenService;
     @Autowired
-    private TokenService tokenService;
+    private RedisTokenService redisTokenService;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -81,9 +84,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String accessToken = jwtTokenUtils.generateToken(userEntity);
         String refreshToken = jwtTokenUtils.generateRefreshToken(userEntity);
-
-        tokenService.saveToken(TokenEntity.builder()
-                        .name(userEntity.getName())
+        // save to database
+//        tokenService.saveToken(TokenEntity.builder()
+//                        .name(userEntity.getName())
+//                        .accessToken(accessToken)
+//                        .refreshToken(refreshToken)
+//                .build());
+        //save to redis
+        redisTokenService.save(RedisToken.builder()
+                        .id(userEntity.getName())
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
                 .build());
@@ -112,6 +121,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String accessToken = jwtTokenUtils.generateToken(userEntity.get());
 
+        // save to database
+//        tokenService.saveToken(TokenEntity.builder()
+//                        .name(userEntity.get().getName())
+//                        .accessToken(accessToken)
+//                        .refreshToken(refreshToken)
+//                .build());
+        //save to redis
+        redisTokenService.save(RedisToken.builder()
+                .id(userEntity.get().getName())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build());
+
         return TokenResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -127,10 +149,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
         final String name = jwtTokenUtils.extractUser(refreshToken, TokenType.ACCESS_TOKEN);
 
-        TokenEntity tokenEntity = tokenService.findByUserName(name);
-        tokenService.deleteToken(tokenEntity.getId());
+        RedisToken redisToken = redisTokenService.getById(name);
+        redisTokenService.delete(redisToken.getId());
 
-        return "Deleted!";
+        return "Logout successfully";
     }
 
     @Override
