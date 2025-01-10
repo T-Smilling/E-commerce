@@ -24,7 +24,6 @@ public class ProductEntity extends BaseEntity {
     @Column(name = "product_id")
     private Long productId;
 
-    @NotBlank
     @Size(min = 3, message = "Product name must contain atleast 3 characters")
     @Column(name = "product_name")
     private String productName;
@@ -32,7 +31,6 @@ public class ProductEntity extends BaseEntity {
     @Column(name = "image")
     private String image;
 
-    @NotBlank
     @Size(min = 6, message = "Product description must contain atleast 6 characters")
     @Column(name = "description")
     private String description;

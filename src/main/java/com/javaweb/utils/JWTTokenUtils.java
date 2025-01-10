@@ -1,21 +1,25 @@
 package com.javaweb.utils;
 
+import com.javaweb.entity.PermissionEntity;
+import com.javaweb.entity.RoleEntity;
 import com.javaweb.entity.UserEntity;
 import com.javaweb.exception.InvalidDataException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 import static com.javaweb.utils.TokenType.*;
@@ -39,8 +43,25 @@ public class JWTTokenUtils {
     private String resetKey;
 
 
-    public String generateToken(UserDetails userDetails){
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateToken(UserDetails userDetails,Long userId){
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        claims.put("scope", buildScope( (UserEntity) userDetails));
+        return generateToken(claims, userDetails);
+    }
+
+    private String buildScope(UserEntity userEntity) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+
+        for (RoleEntity roleEntity : userEntity.getRoles()){
+            stringJoiner.add("ROLE_" + roleEntity.getRoleName());
+            if (!CollectionUtils.isEmpty(roleEntity.getPermissions())){
+                for (PermissionEntity permissionEntity : roleEntity.getPermissions()){
+                    stringJoiner.add(permissionEntity.getName());
+                }
+            }
+        }
+        return stringJoiner.toString();
     }
 
     private String generateToken(Map<String, Object> claims,UserDetails userDetails) {

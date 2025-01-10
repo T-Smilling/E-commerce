@@ -48,16 +48,18 @@ public class ProductServiceImpl implements ProductService {
         boolean isProductNotPresent = true;
         List<ProductEntity> products = category.getProducts();
         for (ProductEntity productEntity : products) {
-            if (productEntity.getProductName().equals(product.getProductName()) && productEntity.getDescription().equals(product.getDescription())) {
+            if (productEntity.getProductName().equals(product.getProductName()) && productEntity.getDescription().contains(product.getDescription())) {
                 isProductNotPresent = false;
                 break;
             }
         }
         if (isProductNotPresent) {
-            ProductEntity productEntity = new ProductEntity();
+            ProductEntity productEntity = modelMapper.map(product, ProductEntity.class);
             productEntity.setCategory(category);
+
             double specialPrice = productEntity.getPrice() - ((productEntity.getDiscount() * 0.01) * productEntity.getPrice());
             productEntity.setSpecialPrice(specialPrice);
+
             productRepository.save(productEntity);
             return modelMapper.map(productEntity, ProductDTO.class);
         } else {
@@ -156,12 +158,8 @@ public class ProductServiceImpl implements ProductService {
         }
 
         List<ProductDTO> productDTOList = productList.stream().map(product -> modelMapper.map(product,ProductDTO.class)).collect(Collectors.toList());
-        ProductResponse productResponse = new ProductResponse();
 
-        ProductResponse productReponse = modelMapper.map(pageProducts, ProductResponse.class);
-        productReponse.setContent(productDTOList);
-
-        return productResponse;
+        return modelMapper.map(pageProducts, ProductResponse.class);
     }
 
 }

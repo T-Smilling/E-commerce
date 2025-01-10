@@ -82,7 +82,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         UserEntity userEntity = userRepository.findByName(request.getName()).orElseThrow(()-> new UserNotFoundException("Username or Password is incorrect"));
 
-        String accessToken = jwtTokenUtils.generateToken(userEntity);
+        String accessToken = jwtTokenUtils.generateToken(userEntity,userEntity.getId());
         String refreshToken = jwtTokenUtils.generateRefreshToken(userEntity);
         // save to database
 //        tokenService.saveToken(TokenEntity.builder()
@@ -119,7 +119,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new InvalidDataException("Token is invalid");
         }
 
-        String accessToken = jwtTokenUtils.generateToken(userEntity.get());
+        String accessToken = jwtTokenUtils.generateToken(userEntity.get(),userEntity.get().getId());
 
         // save to database
 //        tokenService.saveToken(TokenEntity.builder()
